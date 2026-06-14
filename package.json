@@ -1,0 +1,50 @@
+{
+  "name": "create-agentic-sql-app",
+  "version": "0.1.0",
+  "description": "A PostgreSQL-first starter generator for coding agents.",
+  "type": "module",
+  "bin": {
+    "create-agentic-sql-app": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:smoke": "npm run build && tsx scripts/smoke-test.ts",
+    "test:package-managers": "tsx scripts/verify-package-managers.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "cli",
+    "generator",
+    "typescript",
+    "postgresql"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^1.5.1",
+    "cac": "^7.0.0",
+    "execa": "^9.6.1",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.6"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "author": ""
+}

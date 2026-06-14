@@ -1,0 +1,17 @@
+services:
+  postgres:
+    build:
+      context: ./db/docker
+      dockerfile: postgres-pgtap.Dockerfile
+    container_name: agentic_sql_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/tests:/pgtap-tests:ro
+volumes:
+  postgres_data:

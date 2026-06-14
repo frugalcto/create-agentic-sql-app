@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+postgres_data
+coverage
+playwright-report
+test-results
