@@ -15,6 +15,7 @@
     "test:smoke": "npm run build && tsx scripts/smoke-test.ts",
     "test:package-managers": "tsx scripts/verify-package-managers.ts",
     "typecheck": "tsc --noEmit",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run typecheck && npm run test && npm run build"
   },
   "files": [
