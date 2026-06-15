@@ -27,6 +27,19 @@ SELECT ok(
   'sample dashboard returns expected JSON shape'
 );
 
+SELECT ok(
+  (
+    SELECT coalesce((dashboard ->> 'canTransitionReleases')::boolean, false)
+    FROM (
+      SELECT app.app_get_sample_dashboard(
+        '00000000-0000-0000-0000-000000000001'::uuid,
+        '00000000-0000-0000-0000-000000000010'::uuid
+      ) AS dashboard
+    ) AS shaped
+  ),
+  'sample dashboard grants owner release transition permission'
+);
+
 SELECT is(
   (
     SELECT transition -> 'release' ->> 'status'

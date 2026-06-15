@@ -16,6 +16,7 @@ describe("pgTAP app_sample_transition.test.sql templates", () => {
 
       expect(sql).toContain("dashboard -> 'project' ->> 'name'");
       expect(sql).toContain("jsonb_typeof(dashboard -> 'releases')");
+      expect(sql).toContain("dashboard ->> 'canTransitionReleases'");
       expect(sql).toContain("transition -> 'release' ->> 'status'");
 
       expect(sql).not.toMatch(/dashboard\.project/);
