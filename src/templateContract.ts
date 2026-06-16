@@ -7,6 +7,10 @@ export const REQUIRED_DOCUMENTATION_FILES = [
   "TESTING_STRATEGY.md",
 ] as const;
 
+export const REQUIRED_CURSOR_AGENT_FILES = [
+  ".cursor/agents/tech-spec-architect.md",
+] as const;
+
 export const REQUIRED_ROOT_SCRIPTS = [
   "dev",
   "db:up",

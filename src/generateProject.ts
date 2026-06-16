@@ -8,7 +8,10 @@ import {
   ensureProjectDirectory,
   resolveProjectDirectory,
 } from "./util/ensureProjectDirectory.js";
-import { resolveTemplateDirectory } from "./util/paths.js";
+import {
+  resolveSharedTemplateDirectory,
+  resolveTemplateDirectory,
+} from "./util/paths.js";
 import { validateProjectName } from "./util/validateProjectName.js";
 
 export const API_FRAMEWORKS = ["express", "fastify"] as const;
@@ -89,6 +92,11 @@ export async function generateProject(
   );
 
   await copyTemplate(templateDirectory, projectDirectory, templateVariables);
+  await copyTemplate(
+    resolveSharedTemplateDirectory(),
+    projectDirectory,
+    templateVariables,
+  );
   await applyDbTestStyle(projectDirectory, options.dbTests);
 
   await installDependencies({

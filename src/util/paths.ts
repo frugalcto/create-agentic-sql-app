@@ -37,3 +37,7 @@ export function resolveTemplateDirectory(
 
   return getTemplatePath(templateDirectory);
 }
+
+export function resolveSharedTemplateDirectory(): string {
+  return getTemplatePath("shared");
+}

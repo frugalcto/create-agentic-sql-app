@@ -10,6 +10,7 @@ import {
 import { initializeGit } from "../src/initializeGit.js";
 import { installDependencies } from "../src/installDependencies.js";
 import {
+  REQUIRED_CURSOR_AGENT_FILES,
   REQUIRED_DOCUMENTATION_FILES,
   REQUIRED_ROOT_SCRIPTS,
 } from "../src/templateContract.js";
@@ -60,6 +61,7 @@ describe("generateProject", () => {
     expect(result.message).toContain("cp .env.example .env");
     expect(result.message).toContain("npm run db:up");
     expect(result.message).toContain("scripts/cursor-prompts/001-orientation.md");
+    expect(result.message).toContain("/tech-spec-architect");
   });
 
   it("rejects invalid API values at generator boundary", async () => {
@@ -332,6 +334,32 @@ describe("generateProject template copying", () => {
         access(join(result.projectDirectory, fileName)),
       ).resolves.toBeUndefined();
     }
+  });
+
+  it("includes required Cursor agent definitions", async () => {
+    const result = await generateProject(
+      createBaseOptions({
+        projectName: "agents-app",
+        cwd: testRoot,
+        install: false,
+      }),
+    );
+
+    for (const fileName of REQUIRED_CURSOR_AGENT_FILES) {
+      await expect(
+        access(join(result.projectDirectory, fileName)),
+      ).resolves.toBeUndefined();
+    }
+
+    const agentDefinition = await readFile(
+      join(result.projectDirectory, ".cursor/agents/tech-spec-architect.md"),
+      "utf8",
+    );
+
+    expect(agentDefinition).toContain("name: tech-spec-architect");
+    expect(agentDefinition).toContain(
+      "Agent Definition: Agentic PostgreSQL Tech Spec Architect",
+    );
   });
 
   it("excludes Playwright specs from base template web tests", async () => {

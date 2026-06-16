@@ -13,7 +13,8 @@ export function formatCompletionMessage(projectName: string): string {
     "Agent workflow:",
     "1. Open the project in Cursor.",
     "2. Ask Cursor to read AGENTS.md and TASKS.md.",
-    "3. Use scripts/cursor-prompts/001-orientation.md.",
-    "4. Work one task at a time.",
+    "3. Use /tech-spec-architect to turn functional requirements into agentic specs.",
+    "4. Use scripts/cursor-prompts/001-orientation.md.",
+    "5. Work one task at a time.",
   ].join("\n");
 }

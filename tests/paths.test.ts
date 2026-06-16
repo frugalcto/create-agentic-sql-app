@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveTemplateDirectory } from "../src/util/paths.js";
+import { resolveSharedTemplateDirectory, resolveTemplateDirectory } from "../src/util/paths.js";
 
 describe("resolveTemplateDirectory", () => {
   it("resolves Express base template", () => {
@@ -25,5 +25,11 @@ describe("resolveTemplateDirectory", () => {
     expect(resolveTemplateDirectory("fastify", "release-risk")).toMatch(
       /templates\/release-risk-fastify$/,
     );
+  });
+});
+
+describe("resolveSharedTemplateDirectory", () => {
+  it("resolves shared template assets", () => {
+    expect(resolveSharedTemplateDirectory()).toMatch(/templates\/shared$/);
   });
 });
