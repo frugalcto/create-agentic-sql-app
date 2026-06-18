@@ -40,7 +40,7 @@ describe("release risk routes", () => {
     const body = response.json();
     expect(body.service).toMatchObject({
       id: SERVICE_ID,
-      name: "Payments API",
+      name: "Checkout API",
     });
     expect(Array.isArray(body.releases)).toBe(true);
     expect(body.canTransitionReleases).toBe(true);

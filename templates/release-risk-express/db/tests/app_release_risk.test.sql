@@ -10,8 +10,8 @@ declare
 begin
   v_risk := app.app_calculate_release_risk(v_release_id);
 
-  if (v_risk ->> 'riskScore')::integer <> 34 then
-    raise exception 'expected risk score 34, got %', v_risk;
+  if (v_risk ->> 'riskScore')::integer <> 37 then
+    raise exception 'expected risk score 37, got %', v_risk;
   end if;
 
   if v_risk ->> 'riskLevel' <> 'medium' then
@@ -30,7 +30,7 @@ begin
 
   v_result := app.app_get_release_risk_dashboard(v_owner_id, v_service_id);
 
-  if v_result -> 'service' ->> 'name' <> 'Payments API' then
+  if v_result -> 'service' ->> 'name' <> 'Checkout API' then
     raise exception 'expected service name in dashboard response';
   end if;
 

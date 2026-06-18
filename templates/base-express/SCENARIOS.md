@@ -4,10 +4,10 @@ These scenarios define expected behavior for the sample domain. Implementations 
 
 ## Happy path
 
-1. Actor is a project owner with access to the seeded project.
+1. Actor is a project owner with access to the seeded project **Agentic SQL Demo**.
 2. User opens `/sample-dashboard?projectId=<seeded-project-id>`.
 3. Loader calls `GET /api/sample-dashboard`.
-4. Dashboard renders project summary and release items from the API.
+4. Dashboard renders project summary and release items from the API, including **Initial contract-driven release**.
 5. User approves a draft release.
 6. Action calls `POST /api/releases/:releaseId/transition` with `{ "targetStatus": "approved" }`.
 7. UI shows the updated release status returned by the API.
@@ -49,13 +49,26 @@ These scenarios define expected behavior for the sample domain. Implementations 
 2. React shows `ErrorState` with `displayMessage` from the API payload.
 3. UI does not synthesize alternate business values.
 
+## Demo actor context
+
+1. User opens the dashboard with `demoUserId=<viewer-user-id>` in the query string.
+2. Loader passes `x-demo-user-id` to the API.
+3. Dashboard loads with viewer permissions from PostgreSQL.
+4. Transition attempt returns `PERMISSION_DENIED` when the viewer cannot transition releases.
+
+## Empty project demo
+
+1. Actor opens `/sample-dashboard?projectId=00000000-0000-0000-0000-000000000011`.
+2. Loader returns the seeded empty project **Empty rollout project**.
+3. UI renders the empty state without inventing release data.
+
 ## E2E sample flow
 
 Playwright flow for the base template:
 
 1. Open the sample dashboard route.
-2. See the seeded project name.
-3. See the seeded release item.
+2. See the seeded project name **Agentic SQL Demo**.
+3. See the seeded release item **Initial contract-driven release**.
 4. Approve the release through the UI action.
 5. See the updated release status in the page.
 

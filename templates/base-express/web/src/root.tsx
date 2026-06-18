@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
 
 import { DEMO_PROJECT_ID } from "./constants.js";
@@ -11,16 +11,38 @@ import {
 
 export function RootLayout() {
   return (
-    <main>
-      <nav>
-        <Link to="/">Home</Link>
-        {" | "}
-        <Link to={`/sample-dashboard?projectId=${DEMO_PROJECT_ID}`}>
-          Sample dashboard
-        </Link>
-      </nav>
-      <Outlet />
-    </main>
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="app-header__inner">
+          <Link className="app-brand" to="/">
+            <span className="app-brand__title">__PROJECT_NAME__</span>
+            <span className="app-brand__subtitle">PostgreSQL-first application</span>
+          </Link>
+          <nav className="app-nav" aria-label="Primary">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `app-nav__link${isActive ? " active" : ""}`
+              }
+              end
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to={`/sample-dashboard?projectId=${DEMO_PROJECT_ID}`}
+              className={({ isActive }) =>
+                `app-nav__link${isActive ? " active" : ""}`
+              }
+            >
+              Sample dashboard
+            </NavLink>
+          </nav>
+        </div>
+      </header>
+      <main className="app-main">
+        <Outlet />
+      </main>
+    </div>
   );
 }
 

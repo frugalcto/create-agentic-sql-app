@@ -65,6 +65,8 @@ React must not:
 - invent business fields
 - duplicate database behavior
 
+UI polish is allowed, but business rules must not move into React.
+
 ## Testing rules
 
 - Run the required tests for the task type before marking work complete.

@@ -40,7 +40,7 @@ describe("sample routes", () => {
     const body = response.json();
     expect(body.project).toMatchObject({
       id: PROJECT_ID,
-      name: "Sample Project",
+      name: "Agentic SQL Demo",
     });
     expect(Array.isArray(body.releases)).toBe(true);
     expect(body.canTransitionReleases).toBe(true);

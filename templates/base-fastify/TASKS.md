@@ -227,3 +227,37 @@ Use `scripts/cursor-prompts/008-add-react-route.md` if available. Add the docume
 
 **Suggested Cursor prompt:**
 Use `scripts/cursor-prompts/009-add-e2e-flow.md` if available. Add the documented end-to-end scenario.
+
+---
+
+## TASK-009 Polish public demo
+
+**Goal:** Confirm the generated app is ready for a short public proof-of-concept demo.
+
+**Files:**
+- `db/seeds/demo.sql`
+- `web/src/routes/`
+- `README.md`
+- `SCENARIOS.md`
+- `docs/screenshots/README.md`
+
+**Requirements:**
+- Seed data tells a coherent story with realistic names
+- Home and dashboard copy explain the PostgreSQL-first architecture accurately
+- Demo controls use documented API actor context and error paths only
+
+**Acceptance criteria:**
+- README explains what to run, what to click, and what to inspect
+- Dashboard, empty, permission, and invalid-transition states are visible or documented
+- Tests pass for updated seed data and copy
+
+**Testing requirements:**
+- `npm run test`
+- `npm run test:e2e` when the demo flow is affected
+
+**Architecture rules:**
+- React renders contract data only
+- Demo aids must not fabricate business behavior in the frontend
+
+**Suggested Cursor prompt:**
+Review the public demo walkthrough in `README.md` and verify the seeded story matches `SCENARIOS.md`.

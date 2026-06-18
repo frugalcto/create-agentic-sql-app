@@ -9,16 +9,14 @@ test.describe("release risk dashboard flow", () => {
     await page.goto(`/release-risk-dashboard?serviceId=${DEMO_SERVICE_ID}`);
 
     await expect(
-      page.getByRole("heading", { name: "Payments API" }),
+      page.getByRole("heading", { name: "Checkout API" }),
     ).toBeVisible();
 
-    const releaseRow = page
-      .getByRole("listitem")
-      .filter({ hasText: "Release Alpha" });
+    const releaseRow = page.locator("tbody tr").filter({ hasText: "Checkout reliability release" });
 
     await expect(releaseRow).toBeVisible();
     await expect(releaseRow).toContainText("draft");
-    await expect(releaseRow).toContainText("risk medium");
+    await expect(releaseRow).toContainText("medium (37)");
 
     await releaseRow.getByRole("button", { name: "Approve" }).click();
 

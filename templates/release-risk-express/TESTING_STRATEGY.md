@@ -74,16 +74,26 @@ Server tests should cover:
 
 Web tests should cover:
 
-- release risk dashboard renders loaded data and PostgreSQL risk fields
+- release risk dashboard renders loaded data, PostgreSQL risk fields, and architecture copy
 - release risk dashboard renders API error state
 - release transition action submits expected payload
+- demo actor query param passes `x-demo-user-id` to the API
 
 E2E tests should cover:
 
 - open release risk dashboard
-- see seeded service, release, and risk level
+- see seeded service **Checkout API**, release **Checkout reliability release**, and risk level
 - approve release
 - see updated release status
+
+## Demo query parameters
+
+The web dashboard supports development-only demo aids:
+
+- `demoUserId` — selects a seeded actor for the documented `x-demo-user-id` API header
+- empty service route — `serviceId=00000000-0000-0000-0000-000000000011`
+
+These aids do not bypass the API or invent business data in React.
 
 ## Agent rule
 

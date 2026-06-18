@@ -15,7 +15,32 @@ npm run test
 npm run dev
 ```
 
-Open `http://localhost:5173/sample-dashboard?projectId=00000000-0000-0000-0000-000000000010` to view the seeded demo dashboard.
+Open `http://localhost:5173/sample-dashboard?projectId=00000000-0000-0000-0000-000000000010` to view the seeded demo dashboard for **Agentic SQL Demo**.
+
+## Public demo walkthrough
+
+After `npm run dev`:
+
+1. Open the home page at `http://localhost:5173/`.
+2. Click **Open sample dashboard**.
+3. Review the seeded project **Agentic SQL Demo** and release **Initial contract-driven release**.
+4. Click **Approve** to run the documented happy-path transition.
+5. Use **Demo controls (development only)** to switch actor context, open the empty project dashboard, or trigger documented error states.
+
+The dashboard shows contract data returned by PostgreSQL procedures. React does not calculate permissions, valid transitions, or business metrics.
+
+### Files to inspect
+
+| Area | Path |
+| --- | --- |
+| Stored procedures | `db/migrations/004_sample_procedures.sql` |
+| Seed story | `db/seeds/demo.sql` |
+| API route | `server/src/routes/sample.routes.ts` |
+| React route | `web/src/routes/sample-dashboard.tsx` |
+| Agent rules | `AGENTS.md` |
+| Contracts | `DB_API_CONTRACT.md`, `ERROR_CODES.md` |
+| Validation | `TESTING_STRATEGY.md`, `SCENARIOS.md` |
+| Screenshot guidance | `docs/screenshots/README.md` |
 
 ## Start PostgreSQL
 

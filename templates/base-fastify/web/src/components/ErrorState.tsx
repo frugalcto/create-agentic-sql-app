@@ -1,7 +1,7 @@
 export function ErrorState({ message }: { message: string }) {
   return (
-    <p role="alert">
+    <div className="state state--error" role="alert">
       {message}
-    </p>
+    </div>
   );
 }

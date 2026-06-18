@@ -19,7 +19,7 @@ begin
 
   v_result := app.app_get_sample_dashboard(v_owner_id, v_project_id);
 
-  if v_result -> 'project' ->> 'name' is null then
+  if v_result -> 'project' ->> 'name' <> 'Agentic SQL Demo' then
     raise exception 'expected project name in dashboard response';
   end if;
 

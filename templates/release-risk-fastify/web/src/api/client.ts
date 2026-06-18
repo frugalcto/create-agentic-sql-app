@@ -64,10 +64,23 @@ function getApiBaseUrl(): string {
   return import.meta.env.VITE_API_URL ?? "";
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+function getDemoActorHeaders(demoUserId?: string): Record<string, string> {
+  if (!demoUserId) {
+    return {};
+  }
+
+  return { "x-demo-user-id": demoUserId };
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  demoUserId?: string,
+): Promise<T> {
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     headers: {
       "Content-Type": "application/json",
+      ...getDemoActorHeaders(demoUserId),
       ...(init?.headers ?? {}),
     },
     ...init,
@@ -88,16 +101,20 @@ export async function getHealth(): Promise<{ status: string }> {
 
 export async function getReleaseRiskDashboard(
   serviceId: string,
+  demoUserId?: string,
 ): Promise<ReleaseRiskDashboardData> {
   const query = new URLSearchParams({ serviceId });
   return request<ReleaseRiskDashboardData>(
     `/api/release-risk-dashboard?${query.toString()}`,
+    undefined,
+    demoUserId,
   );
 }
 
 export async function transitionRelease(
   releaseId: string,
   targetStatus: string,
+  demoUserId?: string,
 ): Promise<TransitionReleaseResponse> {
   return request<TransitionReleaseResponse>(
     `/api/releases/${releaseId}/transition`,
@@ -105,5 +122,6 @@ export async function transitionRelease(
       method: "POST",
       body: JSON.stringify({ targetStatus }),
     },
+    demoUserId,
   );
 }

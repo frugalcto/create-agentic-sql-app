@@ -9,12 +9,10 @@ test.describe("sample dashboard flow", () => {
     await page.goto(`/sample-dashboard?projectId=${DEMO_PROJECT_ID}`);
 
     await expect(
-      page.getByRole("heading", { name: "Sample Project" }),
+      page.getByRole("heading", { name: "Agentic SQL Demo" }),
     ).toBeVisible();
 
-    const releaseRow = page
-      .getByRole("listitem")
-      .filter({ hasText: "Release Alpha" });
+    const releaseRow = page.locator("tbody tr").filter({ hasText: "Initial contract-driven release" });
 
     await expect(releaseRow).toBeVisible();
     await expect(releaseRow).toContainText("draft");

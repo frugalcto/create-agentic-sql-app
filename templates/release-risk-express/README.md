@@ -17,7 +17,32 @@ npm run test
 npm run dev
 ```
 
-Open `http://localhost:5173/release-risk-dashboard?serviceId=00000000-0000-0000-0000-000000000010` to view seeded release risk data.
+Open `http://localhost:5173/release-risk-dashboard?serviceId=00000000-0000-0000-0000-000000000010` to view seeded release risk data for **Checkout API**.
+
+## Public demo walkthrough
+
+After `npm run dev`:
+
+1. Open the home page at `http://localhost:5173/`.
+2. Click **Open release risk dashboard**.
+3. Review service **Checkout API**, release **Checkout reliability release**, and PostgreSQL-computed risk fields.
+4. Click **Approve** to run the documented happy-path transition.
+5. Use **Demo controls (development only)** to switch actor context, open the empty service dashboard, or trigger documented error states.
+
+Risk scores and release transitions are enforced in PostgreSQL. React renders returned contract data only.
+
+### Files to inspect
+
+| Area | Path |
+| --- | --- |
+| Stored procedures | `db/migrations/004_release_risk_procedures.sql` |
+| Seed story | `db/seeds/demo.sql` |
+| API route | `server/src/routes/release-risk.routes.ts` |
+| React route | `web/src/routes/release-risk-dashboard.tsx` |
+| Agent rules | `AGENTS.md` |
+| Contracts | `DB_API_CONTRACT.md`, `ERROR_CODES.md` |
+| Validation | `TESTING_STRATEGY.md`, `SCENARIOS.md` |
+| Screenshot guidance | `docs/screenshots/README.md` |
 
 ## Start PostgreSQL
 

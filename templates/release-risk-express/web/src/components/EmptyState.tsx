@@ -3,5 +3,9 @@ export function EmptyState({
 }: {
   message?: string;
 }) {
-  return <p role="status">{message}</p>;
+  return (
+    <div className="state state--empty" role="status">
+      {message}
+    </div>
+  );
 }
