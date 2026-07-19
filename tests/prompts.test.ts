@@ -13,6 +13,7 @@ function createMockRunner(
   return {
     projectName: vi.fn().mockResolvedValue("prompted-app"),
     apiFramework: vi.fn().mockResolvedValue("fastify"),
+    authMode: vi.fn().mockResolvedValue(false),
     dbTestStyle: vi.fn().mockResolvedValue("pgtap"),
     template: vi.fn().mockResolvedValue("release-risk"),
     installDependencies: vi.fn().mockResolvedValue(false),
@@ -40,6 +41,7 @@ describe("promptForMissingValues", () => {
     expect(result).toEqual({
       projectName: "flagged-app",
       api: "fastify",
+      auth: false,
       dbTests: "pgtap",
       template: "release-risk",
       install: false,
@@ -97,6 +99,7 @@ describe("promptForMissingValues", () => {
     expect(result).toEqual({
       projectName: "ci-app",
       api: "express",
+      auth: false,
       dbTests: "integration",
       template: "base",
       install: true,

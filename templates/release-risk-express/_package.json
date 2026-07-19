@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "PostgreSQL-first TypeScript app generated for __PROJECT_NAME__.",
   "workspaces": [
+    "contract",
     "server",
     "web"
   ],
@@ -21,10 +22,12 @@
     "test:web": "npm run test -w web",
     "test:e2e": "npm run test:e2e -w web",
     "test": "npm run test:db && npm run test:server && npm run test:web",
-    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "typecheck": "npm run typecheck -w contract && npm run typecheck -w server && npm run typecheck -w web",
     "lint": "npm run typecheck",
+    "contract:generate": "tsx scripts/contract/generate.ts",
     "agent:check": "tsx scripts/checks/check-agent-drift.ts",
-    "agent:check:contract": "tsx scripts/checks/check-contract-coverage.ts"
+    "agent:check:contract": "tsx scripts/checks/check-contract-coverage.ts",
+    "agent:check:db": "tsx scripts/contract/verify-db.ts"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5",

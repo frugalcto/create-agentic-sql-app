@@ -1,4 +1,6 @@
 import { readdir } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
   loadEnvFile,
@@ -6,6 +8,7 @@ import {
   runSqlFile,
   withDatabaseClient,
 } from "./dbClient.js";
+import { verifyDatabaseContract } from "../../scripts/contract/verify-db.js";
 
 async function main(): Promise<void> {
   loadEnvFile();
@@ -22,9 +25,23 @@ async function main(): Promise<void> {
       await runSqlFile(client, resolveDbPath("tests", fileName));
       console.log(`Passed ${fileName}`);
     }
+
+    const violations = await verifyDatabaseContract(client);
+
+    if (violations.length > 0) {
+      for (const violation of violations) {
+        const procedure = violation.procedure ? `${violation.procedure}: ` : "";
+        console.error(`[${violation.check}] ${procedure}${violation.message}`);
+      }
+
+      throw new Error(
+        `Database contract verification failed (${violations.length} issues).`,
+      );
+    }
   });
 
   console.log(`Database tests passed (${testFiles.length} files)`);
+  console.log("Database contract verification passed.");
 }
 
 main().catch((error: unknown) => {

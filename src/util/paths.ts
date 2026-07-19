@@ -41,3 +41,14 @@ export function resolveTemplateDirectory(
 export function resolveSharedTemplateDirectory(): string {
   return getTemplatePath("shared");
 }
+
+export function resolveAuthOverlayDirectories(
+  api: ApiFramework,
+  template: TemplateName,
+): string[] {
+  const root = path.join(getPackageRoot(), "templates", "auth-overlay");
+  const domainDirectory = template === "base" ? "base" : "release-risk";
+  const overlayDirectory = `${domainDirectory}-${api}`;
+
+  return [path.join(root, overlayDirectory)];
+}

@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ApiClientError,
   getSampleDashboard,
+  isReleaseStatus,
   transitionRelease,
   type DashboardData,
 } from "../api/client.js";
@@ -77,6 +78,10 @@ export async function sampleDashboardAction({
   const demoUserId = resolveDemoUserId(formData.get("demoUserId"));
 
   if (typeof releaseId !== "string" || typeof targetStatus !== "string") {
+    return { error: "The request failed validation." };
+  }
+
+  if (!isReleaseStatus(targetStatus)) {
     return { error: "The request failed validation." };
   }
 

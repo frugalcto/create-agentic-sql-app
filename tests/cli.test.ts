@@ -9,6 +9,7 @@ describe("normalizeCliOptions", () => {
     expect(normalized).toEqual({
       projectName: "demo-app",
       api: "express",
+      auth: false,
       dbTests: "integration",
       template: "base",
       packageManager: "npm",
@@ -63,6 +64,11 @@ describe("normalizeCliOptions", () => {
         template: "enterprise",
       }),
     ).toThrow("Invalid --template value: enterprise");
+  });
+
+  it("maps --auth to auth=true", () => {
+    const normalized = normalizeCliOptions("demo-app", { auth: true });
+    expect(normalized.auth).toBe(true);
   });
 
   it("rejects invalid package manager option values", () => {

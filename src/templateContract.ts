@@ -7,6 +7,14 @@ export const REQUIRED_DOCUMENTATION_FILES = [
   "TESTING_STRATEGY.md",
 ] as const;
 
+export const REQUIRED_CONTRACT_FILES = [
+  "contract/package.json",
+  "contract/src/endpoints.ts",
+  "contract/src/errors.ts",
+  "contract/src/index.ts",
+  "contract/openapi.json",
+] as const;
+
 export const REQUIRED_CURSOR_AGENT_FILES = [
   ".cursor/agents/tech-spec-architect.md",
 ] as const;
@@ -24,5 +32,7 @@ export const REQUIRED_ROOT_SCRIPTS = [
   "test",
   "typecheck",
   "lint",
+  "contract:generate",
   "agent:check",
+  "agent:check:db",
 ] as const;

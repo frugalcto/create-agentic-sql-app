@@ -3,15 +3,17 @@
 Read these files first:
 
 - `AGENTS.md`
-- `DB_API_CONTRACT.md`
-- `ERROR_CODES.md`
+- `contract/src/endpoints.ts`
+- `contract/src/errors.ts`
+- generated `DB_API_CONTRACT.md`
 - `TESTING_STRATEGY.md`
 - `TASKS.md`
 
 ## Rules
 
+- Register the route through `registerEndpoint` in `server/src/routes/api.routes.ts`.
 - The API route must be thin.
-- Call a stored procedure.
+- Call a stored procedure through the contract binding.
 - Map known database errors.
 - Do not implement business logic.
 - Do not validate business transitions in Express.
@@ -20,27 +22,30 @@ Read these files first:
 
 ## Allowed files
 
-- `server/src/routes/`
+- `contract/src/endpoints.ts`
+- `contract/src/errors.ts`
+- `server/src/routes/api.routes.ts`
+- `server/src/contract/`
 - `server/src/db/`
 - `server/src/middleware/`
 - `server/src/errors/`
 - `server/tests/`
-- `DB_API_CONTRACT.md`
-- `ERROR_CODES.md`
 
 ## Forbidden files
 
 - `db/migrations/` unless the task explicitly includes database work
 - `web/**`
+- generated `DB_API_CONTRACT.md`, `ERROR_CODES.md`, and `contract/openapi.json`
 
 ## Required tests
 
+- `npm run contract:generate` when contract files change
 - `npm run test:server`
 - affected `npm run test:db` when database behavior is involved
 
 ## Your task
 
-Expose the documented stored procedure through a thin Express route and add server tests for success and mapped error cases.
+Expose the documented stored procedure through the contract-driven Express route registry and add server tests for success and mapped error cases.
 
 ## Completion summary
 

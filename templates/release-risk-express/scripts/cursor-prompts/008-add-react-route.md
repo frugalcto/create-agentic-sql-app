@@ -3,7 +3,8 @@
 Read these files first:
 
 - `AGENTS.md`
-- `DB_API_CONTRACT.md`
+- `contract/src/endpoints.ts`
+- generated `DB_API_CONTRACT.md`
 - `ERROR_CODES.md`
 - `TESTING_STRATEGY.md`
 - `SCENARIOS.md`
@@ -22,7 +23,7 @@ Read these files first:
 
 - `web/src/routes/`
 - `web/src/components/`
-- `web/src/api/`
+- `web/src/api/` (import response types from `@__PROJECT_NAME_PKG__/contract` when possible)
 - `web/tests/`
 - `SCENARIOS.md` when user-visible behavior changes
 

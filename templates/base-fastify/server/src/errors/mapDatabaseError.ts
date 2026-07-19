@@ -1,41 +1,12 @@
 import type { DatabaseError } from "pg";
 
+import { errorRegistry } from "@__PROJECT_NAME_PKG__/contract";
+
 import {
   ApiError,
   type ApiErrorBody,
   type ErrorCode,
 } from "./errorTypes.js";
-
-const ERROR_DEFINITIONS: Record<
-  ErrorCode,
-  { statusCode: number; category: ApiErrorBody["error"]["category"]; displayMessage: string }
-> = {
-  PERMISSION_DENIED: {
-    statusCode: 403,
-    category: "business_rule",
-    displayMessage: "You do not have permission to perform this action.",
-  },
-  RELEASE_NOT_FOUND: {
-    statusCode: 404,
-    category: "business_rule",
-    displayMessage: "Release not found.",
-  },
-  RELEASE_INVALID_TRANSITION: {
-    statusCode: 400,
-    category: "business_rule",
-    displayMessage: "This release cannot be moved to that status.",
-  },
-  VALIDATION_FAILED: {
-    statusCode: 400,
-    category: "validation",
-    displayMessage: "The request failed validation.",
-  },
-  SYSTEM_ERROR: {
-    statusCode: 500,
-    category: "system",
-    displayMessage: "Something went wrong.",
-  },
-};
 
 function isDatabaseError(error: unknown): error is DatabaseError {
   return (
@@ -47,7 +18,7 @@ function isDatabaseError(error: unknown): error is DatabaseError {
 }
 
 function isKnownErrorCode(message: string): message is ErrorCode {
-  return message in ERROR_DEFINITIONS;
+  return message in errorRegistry;
 }
 
 export function mapDatabaseError(error: unknown): ApiError | null {
@@ -58,24 +29,23 @@ export function mapDatabaseError(error: unknown): ApiError | null {
   const code = error.message.trim();
 
   if (!isKnownErrorCode(code)) {
-    return new ApiError(
-      ERROR_DEFINITIONS.SYSTEM_ERROR.statusCode,
-      {
-        error: {
-          code: "SYSTEM_ERROR",
-          category: ERROR_DEFINITIONS.SYSTEM_ERROR.category,
-          displayMessage: ERROR_DEFINITIONS.SYSTEM_ERROR.displayMessage,
-        },
+    const definition = errorRegistry.SYSTEM_ERROR;
+
+    return new ApiError(definition.statusCode, {
+      error: {
+        code: "SYSTEM_ERROR",
+        category: definition.category,
+        displayMessage: definition.displayMessage,
       },
-    );
+    });
   }
 
-  const definition = ERROR_DEFINITIONS[code];
+  const definition = errorRegistry[code];
 
   return new ApiError(definition.statusCode, {
     error: {
       code,
-      category: definition.category,
+      category: definition.category as ApiErrorBody["error"]["category"],
       displayMessage: definition.displayMessage,
     },
   });

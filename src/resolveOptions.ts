@@ -32,6 +32,7 @@ export function mergeResolvedOptions(
   return {
     projectName: validateProjectName(prompted.projectName),
     api: prompted.api,
+    auth: prompted.auth,
     dbTests: prompted.dbTests,
     template: prompted.template,
     packageManager,
@@ -49,6 +50,7 @@ export async function resolveGenerationOptions(
     {
       projectName,
       api: rawOptions.api,
+      auth: rawOptions.auth,
       dbTests: rawOptions.dbTests,
       template: rawOptions.template,
       skipInstall: rawOptions.skipInstall,

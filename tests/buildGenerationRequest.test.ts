@@ -12,6 +12,7 @@ function createMockPromptRunner(
   return {
     projectName: vi.fn().mockResolvedValue("prompted-app"),
     apiFramework: vi.fn().mockResolvedValue("express"),
+    authMode: vi.fn().mockResolvedValue(false),
     dbTestStyle: vi.fn().mockResolvedValue("integration"),
     template: vi.fn().mockResolvedValue("base"),
     installDependencies: vi.fn().mockResolvedValue(true),

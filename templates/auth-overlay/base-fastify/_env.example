@@ -1,0 +1,6 @@
+DATABASE_URL=postgres://app:app@localhost:5432/app_dev
+DATABASE_RUNTIME_URL=postgres://app_runtime:app_runtime_dev@localhost:5432/app_dev
+PORT=3000
+WEB_PORT=5173
+SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_MAX_AGE_SECONDS=604800

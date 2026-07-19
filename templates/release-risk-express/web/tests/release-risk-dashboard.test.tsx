@@ -111,12 +111,12 @@ describe("release risk dashboard route", () => {
   });
 
   it("renders loading state while loader is pending", async () => {
-    let resolveResponse: ((value: unknown) => void) | null = null;
-    const pendingResponse = new Promise((resolve) => {
-      resolveResponse = resolve;
+    let resolveFetch!: (value: Response) => void;
+    const fetchPromise = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
     });
 
-    vi.stubGlobal("fetch", vi.fn(() => pendingResponse as Promise<Response>));
+    vi.stubGlobal("fetch", vi.fn(() => fetchPromise));
 
     const router = createDashboardRouter(
       `/release-risk-dashboard?serviceId=${DEMO_SERVICE_ID}`,
@@ -127,10 +127,12 @@ describe("release risk dashboard route", () => {
       "Loading release risk dashboard...",
     );
 
-    resolveResponse?.({
-      ok: true,
-      json: async () => dashboardFixture,
-    });
+    resolveFetch(
+      new Response(JSON.stringify(dashboardFixture), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
     expect(
       await screen.findByRole("heading", { name: "Checkout API" }),
     ).toBeInTheDocument();

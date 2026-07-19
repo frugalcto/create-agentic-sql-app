@@ -1,3 +1,7 @@
+import type { z } from "zod";
+
+import { endpoints } from "@__PROJECT_NAME_PKG__/contract";
+
 export interface ApiErrorDetails {
   code: string;
   category: string;
@@ -17,29 +21,20 @@ export class ApiClientError extends Error {
   }
 }
 
-export interface DashboardRelease {
-  id: string;
-  name: string;
-  status: string;
-}
+export type DashboardData = z.infer<
+  typeof endpoints.getSampleDashboard.response
+>;
 
-export interface DashboardData {
-  project: {
-    id: string;
-    name: string;
-  };
-  actorRole: string;
-  canTransitionReleases: boolean;
-  releases: DashboardRelease[];
-}
+export type TransitionReleaseResponse = z.infer<
+  typeof endpoints.transitionRelease.response
+>;
 
-export interface TransitionReleaseResponse {
-  release: {
-    id: string;
-    projectId: string;
-    name: string;
-    status: string;
-  };
+export type HealthResponse = z.infer<typeof endpoints.health.response>;
+
+export type ReleaseStatus = DashboardData["releases"][number]["status"];
+
+export function isReleaseStatus(value: string): value is ReleaseStatus {
+  return value === "draft" || value === "approved" || value === "released";
 }
 
 function getApiBaseUrl(): string {
@@ -77,8 +72,8 @@ async function request<T>(
   return body as T;
 }
 
-export async function getHealth(): Promise<{ status: string }> {
-  return request<{ status: string }>("/api/health");
+export async function getHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>("/api/health");
 }
 
 export async function getSampleDashboard(
@@ -95,7 +90,7 @@ export async function getSampleDashboard(
 
 export async function transitionRelease(
   releaseId: string,
-  targetStatus: string,
+  targetStatus: ReleaseStatus,
   demoUserId?: string,
 ): Promise<TransitionReleaseResponse> {
   return request<TransitionReleaseResponse>(

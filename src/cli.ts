@@ -20,6 +20,7 @@ export type { CliRawOptions } from "./cliTypes.js";
 export interface NormalizedCliOptions {
   projectName: string;
   api: ApiFramework;
+  auth: boolean;
   dbTests: DbTestStyle;
   template: TemplateName;
   packageManager: PackageManager;
@@ -29,6 +30,7 @@ export interface NormalizedCliOptions {
 
 const DEFAULTS = {
   api: "express" as ApiFramework,
+  auth: false,
   dbTests: "integration" as DbTestStyle,
   template: "base" as TemplateName,
   packageManager: "npm" as PackageManager,
@@ -77,6 +79,7 @@ export function normalizeCliOptions(
   return {
     projectName: validatedProjectName,
     api: parseApi(options.api),
+    auth: options.auth ?? DEFAULTS.auth,
     dbTests: parseDbTests(options.dbTests),
     template: parseTemplate(options.template),
     packageManager: parsePackageManager(options.packageManager),
@@ -91,6 +94,7 @@ export async function runCli(argv = process.argv): Promise<void> {
   cli
     .command("[projectName]", "Create a PostgreSQL-first TypeScript app")
     .option("--api <api>", "API framework: express|fastify")
+    .option("--auth", "Enable PostgreSQL session auth with RLS")
     .option("--db-tests <dbTests>", "DB test style: integration|pgtap")
     .option("--template <template>", "Template: base|release-risk")
     .option("--skip-install", "Skip dependency installation")

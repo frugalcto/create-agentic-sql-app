@@ -1,0 +1,253 @@
+import {
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router-dom";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+
+import {
+  ApiClientError,
+  getSampleDashboard,
+  isReleaseStatus,
+  transitionRelease,
+  type DashboardData,
+} from "../api/client.js";
+import { buildLoginPath, DEMO_PROJECT_ID } from "../constants.js";
+import { EmptyState } from "../components/EmptyState.js";
+import { ErrorState } from "../components/ErrorState.js";
+import { LoadingState } from "../components/LoadingState.js";
+
+export interface SampleDashboardLoaderData {
+  dashboard?: DashboardData;
+  error?: string;
+}
+
+export interface SampleDashboardActionData {
+  error?: string;
+}
+
+function getStatusBadgeClass(status: string): string {
+  const normalized = status.toLowerCase();
+
+  if (normalized === "draft" || normalized === "approved" || normalized === "released") {
+    return `badge badge--${normalized}`;
+  }
+
+  return "badge badge--muted";
+}
+
+export async function sampleDashboardLoader({
+  request,
+}: LoaderFunctionArgs): Promise<SampleDashboardLoaderData | Response> {
+  const url = new URL(request.url);
+  const projectId = url.searchParams.get("projectId") ?? DEMO_PROJECT_ID;
+
+  try {
+    const dashboard = await getSampleDashboard(projectId);
+    return { dashboard };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.details.code === "UNAUTHENTICATED") {
+      throw redirect(buildLoginPath(url.pathname + url.search));
+    }
+
+    if (error instanceof ApiClientError) {
+      return { error: error.details.displayMessage };
+    }
+
+    return { error: "Something went wrong." };
+  }
+}
+
+export async function sampleDashboardAction({
+  request,
+}: ActionFunctionArgs): Promise<SampleDashboardActionData | null> {
+  const formData = await request.formData();
+  const releaseId = formData.get("releaseId");
+  const targetStatus = formData.get("targetStatus");
+
+  if (typeof releaseId !== "string" || typeof targetStatus !== "string") {
+    return { error: "The request failed validation." };
+  }
+
+  if (!isReleaseStatus(targetStatus)) {
+    return { error: "The request failed validation." };
+  }
+
+  try {
+    await transitionRelease(releaseId, targetStatus);
+    return null;
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      return { error: error.details.displayMessage };
+    }
+
+    return { error: "Something went wrong." };
+  }
+}
+
+export function SampleDashboardRoute() {
+  const loaderData = useLoaderData<SampleDashboardLoaderData>();
+  const actionData = useActionData<SampleDashboardActionData>();
+  const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const submittedTransitionRef = useRef(false);
+  const projectId = searchParams.get("projectId") ?? DEMO_PROJECT_ID;
+  const isLoading = navigation.state === "loading";
+  const isSubmitting = navigation.state === "submitting";
+
+  useEffect(() => {
+    if (isSubmitting) {
+      submittedTransitionRef.current = true;
+      setActionNotice(null);
+      return;
+    }
+
+    if (!submittedTransitionRef.current || navigation.state !== "idle") {
+      return;
+    }
+
+    submittedTransitionRef.current = false;
+    setActionNotice(
+      actionData?.error ? null : "Transition submitted. The latest status is shown below.",
+    );
+  }, [actionData?.error, isSubmitting, navigation.state]);
+
+  if (isLoading) {
+    return <LoadingState message="Loading dashboard..." />;
+  }
+
+  if (loaderData.error) {
+    return <ErrorState message={loaderData.error} />;
+  }
+
+  const dashboard = loaderData.dashboard;
+
+  if (!dashboard) {
+    return <ErrorState message="Something went wrong." />;
+  }
+
+  if (dashboard.releases.length === 0) {
+    return (
+      <section className="page-stack">
+        <article className="card">
+          <h1>{dashboard.project.name}</h1>
+          <p className="architecture-note">
+            Project summary and release state are returned by PostgreSQL procedures protected by
+            session-backed RLS.
+          </p>
+          <div className="meta-grid">
+            <div>
+              <div className="meta-label">Project ID</div>
+              <div className="meta-value">{dashboard.project.id}</div>
+            </div>
+            <div>
+              <div className="meta-label">Actor role</div>
+              <div className="meta-value">{dashboard.actorRole}</div>
+            </div>
+          </div>
+        </article>
+        <EmptyState message="No releases returned for this project yet." />
+      </section>
+    );
+  }
+
+  return (
+    <section className="page-stack">
+      <article className="card">
+        <h1>{dashboard.project.name}</h1>
+        <p className="architecture-note">
+          Generated by <strong>create-agentic-sql-app</strong> with PostgreSQL session auth and
+          authoritative row-level security.
+        </p>
+        <div className="meta-grid">
+          <div>
+            <div className="meta-label">Project ID</div>
+            <div className="meta-value">{dashboard.project.id}</div>
+          </div>
+          <div>
+            <div className="meta-label">Actor role</div>
+            <div className="meta-value">{dashboard.actorRole}</div>
+          </div>
+          <div>
+            <div className="meta-label">Transition capability</div>
+            <div className="meta-value">
+              {dashboard.canTransitionReleases ? "Transitions enabled" : "Read only"}
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article className="card table-card">
+        <div className="table-wrap">
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th scope="col">Release</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dashboard.releases.map((release) => (
+                <tr key={release.id}>
+                  <td>{release.name}</td>
+                  <td>
+                    <span
+                      aria-label={`Status: ${release.status}`}
+                      className={getStatusBadgeClass(release.status)}
+                    >
+                      {release.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="demo-actions">
+                      {dashboard.canTransitionReleases ? (
+                        <>
+                          <Form className="inline-form" method="post">
+                            <input type="hidden" name="releaseId" value={release.id} />
+                            <input type="hidden" name="targetStatus" value="approved" />
+                            <button className="button" type="submit" disabled={isSubmitting}>
+                              Approve
+                            </button>
+                          </Form>
+                          {release.status === "draft" ? (
+                            <Form className="inline-form" method="post">
+                              <input type="hidden" name="releaseId" value={release.id} />
+                              <input type="hidden" name="targetStatus" value="released" />
+                              <button
+                                className="button button--ghost"
+                                type="submit"
+                                disabled={isSubmitting}
+                              >
+                                Try invalid transition
+                              </button>
+                            </Form>
+                          ) : null}
+                        </>
+                      ) : (
+                        <span className="badge badge--muted">No action</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <div className="feedback-row">
+        {isSubmitting ? <LoadingState message="Submitting transition..." /> : null}
+        {actionNotice ? <div className="state">{actionNotice}</div> : null}
+      </div>
+
+      {actionData?.error ? <ErrorState message={actionData.error} /> : null}
+    </section>
+  );
+}

@@ -1,13 +1,6 @@
-export const ERROR_CODES = [
-  "PERMISSION_DENIED",
-  "SERVICE_NOT_FOUND",
-  "RELEASE_NOT_FOUND",
-  "RELEASE_INVALID_TRANSITION",
-  "VALIDATION_FAILED",
-  "SYSTEM_ERROR",
-] as const;
+import type { ErrorCode as ContractErrorCode } from "@__PROJECT_NAME_PKG__/contract";
 
-export type ErrorCode = (typeof ERROR_CODES)[number];
+export type ErrorCode = ContractErrorCode;
 
 export type ErrorCategory = "business_rule" | "validation" | "system";
 

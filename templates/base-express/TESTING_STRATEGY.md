@@ -24,6 +24,9 @@ npm run test:web
 npm run test:e2e
 npm run test
 npm run typecheck
+npm run contract:generate
+npm run agent:check
+npm run agent:check:db
 ```
 
 Database setup commands used before tests in local development:
@@ -40,7 +43,7 @@ A task is not complete until:
 
 1. acceptance criteria in `TASKS.md` are met
 2. required tests for that task type pass
-3. contract docs are updated when behavior changes
+3. contract module and generated docs are updated when behavior changes
 4. the agent summary lists files changed, tests run, and assumptions
 
 ## Testing by task type

@@ -1,3 +1,7 @@
+import type { z } from "zod";
+
+import { endpoints } from "@__PROJECT_NAME_PKG__/contract";
+
 export interface ApiErrorDetails {
   code: string;
   category: string;
@@ -17,47 +21,20 @@ export class ApiClientError extends Error {
   }
 }
 
-export interface ReleaseRiskFactors {
-  openCriticalIncidents: number;
-  openHighIncidents: number;
-  openMediumIncidents: number;
-  openSupportTickets: number;
-  openPullRequests: number;
-}
+export type ReleaseRiskDashboardData = z.infer<
+  typeof endpoints.getReleaseRiskDashboard.response
+>;
 
-export interface ReleaseRiskItem {
-  id: string;
-  name: string;
-  version: string;
-  status: string;
-  riskScore: number;
-  riskLevel: string;
-  riskFactors: ReleaseRiskFactors;
-}
+export type TransitionReleaseResponse = z.infer<
+  typeof endpoints.transitionRelease.response
+>;
 
-export interface ReleaseRiskDashboardData {
-  service: {
-    id: string;
-    name: string;
-  };
-  actorRole: string;
-  canTransitionReleases: boolean;
-  releases: ReleaseRiskItem[];
-}
+export type HealthResponse = z.infer<typeof endpoints.health.response>;
 
-export interface TransitionReleaseResponse {
-  release: {
-    id: string;
-    serviceId: string;
-    name: string;
-    version: string;
-    status: string;
-    risk: {
-      riskScore: number;
-      riskLevel: string;
-      riskFactors: ReleaseRiskFactors;
-    };
-  };
+export type ReleaseStatus = ReleaseRiskDashboardData["releases"][number]["status"];
+
+export function isReleaseStatus(value: string): value is ReleaseStatus {
+  return value === "draft" || value === "approved" || value === "released";
 }
 
 function getApiBaseUrl(): string {
@@ -95,8 +72,8 @@ async function request<T>(
   return body as T;
 }
 
-export async function getHealth(): Promise<{ status: string }> {
-  return request<{ status: string }>("/api/health");
+export async function getHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>("/api/health");
 }
 
 export async function getReleaseRiskDashboard(
@@ -113,7 +90,7 @@ export async function getReleaseRiskDashboard(
 
 export async function transitionRelease(
   releaseId: string,
-  targetStatus: string,
+  targetStatus: ReleaseStatus,
   demoUserId?: string,
 ): Promise<TransitionReleaseResponse> {
   return request<TransitionReleaseResponse>(

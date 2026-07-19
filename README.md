@@ -23,6 +23,7 @@ Generate with explicit options:
 npx create-agentic-sql-app my-app --api fastify
 npx create-agentic-sql-app my-app --db-tests pgtap
 npx create-agentic-sql-app release-risk-demo --template release-risk
+npx create-agentic-sql-app my-app --auth
 npx create-agentic-sql-app my-app --package-manager pnpm
 npx create-agentic-sql-app my-app --skip-install --no-git
 ```
@@ -87,6 +88,7 @@ my-app/
 | `--api` | `express`, `fastify` | `express` |
 | `--db-tests` | `integration`, `pgtap` | `integration` |
 | `--template` | `base`, `release-risk` | `base` |
+| `--auth` | — | demo header actor context |
 | `--package-manager` | `npm`, `pnpm`, `yarn` | auto-detected from `npm_config_user_agent`, then `pnpm-lock.yaml` / `yarn.lock` in the current directory, otherwise `npm` |
 | `--skip-install` | — | install dependencies |
 | `--no-git` | — | initialize git |
@@ -124,10 +126,12 @@ Root workspace scripts (identical across all generated templates):
 | `npm run test:server` | Run API route tests only |
 | `npm run test:web` | Run React unit tests only |
 | `npm run test:e2e` | Run Playwright end-to-end tests |
-| `npm run typecheck` | Type-check server and web workspaces |
+| `npm run typecheck` | Type-check contract, server, and web workspaces |
 | `npm run lint` | Alias for `typecheck` |
-| `npm run agent:check` | Run agent drift checks |
-| `npm run agent:check:contract` | Run contract coverage checks |
+| `npm run contract:generate` | Regenerate `DB_API_CONTRACT.md`, `ERROR_CODES.md`, and `contract/openapi.json` from `contract/src` |
+| `npm run agent:check` | Run contract freshness, drift, and coverage checks |
+| `npm run agent:check:contract` | Run contract coverage checks only |
+| `npm run agent:check:db` | Verify contract procedures against the live database |
 
 Workspace package scripts (run from `server/` or `web/` with `npm run <script>`, or from the root with `npm run <script> -w server` / `-w web`):
 
@@ -189,15 +193,14 @@ Use `create-agentic-sql-app` when you want:
 
 Version 1 intentionally excludes:
 
-- authentication provider setup
-- multi-tenant production auth
+- external authentication provider setup (OAuth, SAML, email delivery)
+- multi-tenant production auth beyond the optional PostgreSQL session template
 - complex ORM integration
 - background workers
 - deployment automation
 - Kubernetes
 - advanced visualizations
 - AI agent orchestration
-- code generation from DB contracts
 - full OpenAPI generation
 
 Do not use this generator if you need those capabilities out of the box. It is designed to prove architecture and agent workflow, not production platform completeness.
@@ -214,7 +217,7 @@ Do not use this generator if you need those capabilities out of the box. It is d
 | Interactive prompts | Done | Missing options prompt flow, git init |
 | Generated app smoke test | Done | Opt-in `npm run test:smoke` |
 | CI smoke workflow | Planned | Docker-backed smoke test in CI |
-| Drift checker hardening | Planned | Stronger contract and coverage enforcement |
+| Drift checker hardening | Done | Typed contract module, generated docs, DB verifier |
 
 ## License
 

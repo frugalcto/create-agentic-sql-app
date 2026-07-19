@@ -24,6 +24,9 @@ npm run test:web
 npm run test:e2e
 npm run test
 npm run typecheck
+npm run contract:generate
+npm run agent:check
+npm run agent:check:db
 ```
 
 Database setup commands used before tests in local development:
@@ -40,7 +43,7 @@ A task is not complete until:
 
 1. acceptance criteria in `TASKS.md` are met
 2. required tests for that task type pass
-3. contract docs are updated when behavior changes
+3. contract module and generated docs are updated when behavior changes
 4. the agent summary lists files changed, tests run, and assumptions
 
 ## Testing by task type
@@ -53,14 +56,13 @@ A task is not complete until:
 | End-to-end scenario | `npm run test:e2e` |
 | Documentation-only | no tests required unless commands or contracts changed |
 
-## Expected release-risk coverage
+## Expected base coverage
 
 Database tests should cover:
 
 - health procedure returns ok
-- release risk scoring is computed in PostgreSQL
-- release risk dashboard denies unauthorized user
-- release risk dashboard returns expected JSON shape with risk fields
+- release-risk dashboard denies unauthorized user
+- release-risk dashboard returns expected JSON shape
 - valid release transition succeeds
 - invalid release transition raises `RELEASE_INVALID_TRANSITION`
 - viewer cannot transition release
@@ -68,21 +70,21 @@ Database tests should cover:
 Server tests should cover:
 
 - `GET /api/health` returns ok
-- `GET /api/release-risk-dashboard` returns procedure JSON with risk fields
+- `GET /api/sample-dashboard` returns procedure JSON
 - permission error maps to `403`
 - invalid transition maps to `400`
 
 Web tests should cover:
 
-- release risk dashboard renders loaded data, PostgreSQL risk fields, and architecture copy
-- release risk dashboard renders API error state
+- release-risk dashboard renders loaded data and architecture copy
+- release-risk dashboard renders API error state
 - release transition action submits expected payload
 - demo actor query param passes `x-demo-user-id` to the API
 
 E2E tests should cover:
 
-- open release risk dashboard
-- see seeded service **Checkout API**, release **Checkout reliability release**, and risk level
+- open release-risk dashboard
+- see seeded project **Agentic SQL Demo** and release **Initial contract-driven release**
 - approve release
 - see updated release status
 
@@ -91,7 +93,7 @@ E2E tests should cover:
 The web dashboard supports development-only demo aids:
 
 - `demoUserId` — selects a seeded actor for the documented `x-demo-user-id` API header
-- empty service route — `serviceId=00000000-0000-0000-0000-000000000011`
+- empty project route — `projectId=00000000-0000-0000-0000-000000000011`
 
 These aids do not bypass the API or invent business data in React.
 

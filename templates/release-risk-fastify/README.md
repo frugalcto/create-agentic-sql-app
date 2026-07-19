@@ -37,10 +37,11 @@ Risk scores and release transitions are enforced in PostgreSQL. React renders re
 | --- | --- |
 | Stored procedures | `db/migrations/004_release_risk_procedures.sql` |
 | Seed story | `db/seeds/demo.sql` |
-| API route | `server/src/routes/release-risk.routes.ts` |
+| Contract module | `contract/src/endpoints.ts`, `contract/src/errors.ts` |
+| API route registry | `server/src/routes/api.routes.ts` |
 | React route | `web/src/routes/release-risk-dashboard.tsx` |
 | Agent rules | `AGENTS.md` |
-| Contracts | `DB_API_CONTRACT.md`, `ERROR_CODES.md` |
+| Generated contracts | `DB_API_CONTRACT.md`, `ERROR_CODES.md`, `contract/openapi.json` |
 | Validation | `TESTING_STRATEGY.md`, `SCENARIOS.md` |
 | Screenshot guidance | `docs/screenshots/README.md` |
 
@@ -120,22 +121,93 @@ The web app proxies API requests during development.
 ## Architecture
 
 - **PostgreSQL** — permissions, validations, state transitions, risk scoring, and business-rule errors
-- **Fastify API** — parse params, read actor context, call stored procedures, map database errors, return JSON
+- **Fastify API** — validate inputs against the contract, call stored procedures, map database errors, return JSON
 - **React** — render contract data from loaders and actions; no client-side business logic
 
 ### Architecture rules
 
 - Risk scores and release transitions belong in PostgreSQL stored procedures.
-- API routes call `callProcedure` and map documented errors only.
+- API routes register through `registerEndpoint` and delegate to PostgreSQL; they do not implement business rules.
 - React renders `riskScore`, `riskLevel`, and status fields returned by the API; it does not calculate risk locally.
 
-Read `AGENTS.md` and `DB_API_CONTRACT.md` before changing behavior.
+Read `AGENTS.md` and `contract/src/` before changing behavior. Generated `DB_API_CONTRACT.md` and `ERROR_CODES.md` are produced from the contract module.
+
+## Machine-readable contract
+
+This project keeps the HTTP-to-database boundary in a typed **contract module** instead of hand-synchronized markdown, TypeScript types, and route code.
+
+### Source of truth
+
+| Location | Purpose |
+| --- | --- |
+| `contract/src/endpoints.ts` | Route definitions: method, path, Zod input/response schemas, procedure bindings, error codes |
+| `contract/src/errors.ts` | Error registry: PostgreSQL code → HTTP status, category, display message |
+| `contract/src/schema.ts` | Shared contract types and `defineEndpoint` helper |
+
+The `contract/` folder is an npm workspace package (`@__PROJECT_NAME_PKG__/contract`). The server, web app, and check scripts all import from it, so TypeScript catches drift at compile time.
+
+### Generated artifacts
+
+Run `npm run contract:generate` after editing the contract module. It writes:
+
+- `DB_API_CONTRACT.md` — human-readable route-to-procedure reference for agents
+- `ERROR_CODES.md` — error catalog for API and UI behavior
+- `contract/openapi.json` — OpenAPI 3.1 export of endpoints and error responses
+
+These files include a generated header. **Do not edit them by hand.** Change `contract/src/` and regenerate.
+
+### How routes use the contract
+
+All API routes register in `server/src/routes/api.routes.ts` through `registerEndpoint`. For each endpoint the wrapper:
+
+1. Validates query, path, and body params with Zod (unknown fields are rejected)
+2. Binds HTTP inputs to procedure arguments in the order declared in the contract
+3. Calls the PostgreSQL stored procedure via `callProcedure`
+4. In development and tests, validates the procedure JSON response against the contract schema
+
+The web client imports response types from the contract package (`z.infer`), so frontend types stay aligned with API responses.
+
+Internal procedures such as `app_calculate_release_risk` are listed in `contract/src/errors.ts` as `INTERNAL_PROCEDURES` so they are not exposed as HTTP endpoints but are still verified against the database.
+
+### Verification commands
+
+| Command | What it checks |
+| --- | --- |
+| `npm run contract:generate` | Regenerates markdown and OpenAPI from `contract/src/` |
+| `npm run agent:check` | Contract freshness, endpoint registration, SQL error coverage, and business-logic drift heuristics |
+| `npm run agent:check:contract` | Contract coverage only (errors, DB tests, route registration) |
+| `npm run agent:check:db` | Live PostgreSQL procedure signatures and raised error codes match the contract |
+
+`npm run test:db` also runs the database contract verifier after SQL tests pass.
+
+### When to update the contract
+
+Edit the contract module when you add or change:
+
+- an HTTP route or its inputs
+- a stored procedure binding or parameter order
+- a response JSON shape exposed to the API
+- a business error code
+
+Typical flow:
+
+```bash
+# 1. Edit contract/src/endpoints.ts and/or contract/src/errors.ts
+# 2. Regenerate docs
+npm run contract:generate
+# 3. Add migration, procedure, and database tests
+# 4. Register the endpoint in server/src/routes/api.routes.ts
+# 5. Add server and web tests
+npm run agent:check
+```
 
 ## Repository layout
 
+- `contract/` — typed contract package (endpoints, errors, generated OpenAPI)
 - `db/` — migrations, seeds, database tests, and scripts
-- `server/` — thin Fastify API
+- `server/` — thin Fastify API with contract-driven route registration
 - `web/` — React Router frontend
+- `scripts/contract/` — contract generation and database verification scripts
 - `scripts/cursor-prompts/` — task-bounded Cursor prompts
 - `scripts/checks/` — agent drift and contract coverage checks
 
@@ -157,10 +229,10 @@ Paste a prompt into Cursor and ask the agent to follow it exactly. Each prompt d
 
 Follow this order when adding a feature:
 
-1. Update `DB_API_CONTRACT.md` and `ERROR_CODES.md` if the contract changes.
+1. Update `contract/src/endpoints.ts` and/or `contract/src/errors.ts`, then run `npm run contract:generate`.
 2. Add or change PostgreSQL migrations and stored procedures in `db/`.
 3. Add database tests in `db/tests/`.
-4. Expose the procedure through a thin API route in `server/src/routes/`.
+4. Register the endpoint in `server/src/routes/api.routes.ts`.
 5. Add server tests in `server/tests/`.
 6. Add or update a React route in `web/src/routes/`.
 7. Add web tests and, when needed, a Playwright flow in `web/e2e/`.
@@ -171,7 +243,7 @@ Work one task at a time from `TASKS.md`.
 
 ## Agent workflow
 
-1. Read `AGENTS.md`, `TASKS.md`, `DB_API_CONTRACT.md`, `ERROR_CODES.md`, `SCENARIOS.md`, and `TESTING_STRATEGY.md`.
+1. Read `AGENTS.md`, `contract/src/`, generated `DB_API_CONTRACT.md`, `ERROR_CODES.md`, `SCENARIOS.md`, `TASKS.md`, and `TESTING_STRATEGY.md`.
 2. Use `scripts/cursor-prompts/001-orientation.md` for the first session.
 3. Complete tasks in order and run the required tests for each task type.
 4. Do not mark a task complete without test evidence.
@@ -190,10 +262,12 @@ Work one task at a time from `TASKS.md`.
 | `npm run test:server` | Run API tests only |
 | `npm run test:web` | Run frontend tests only |
 | `npm run test:e2e` | Run Playwright end-to-end tests |
-| `npm run typecheck` | Type-check server and web workspaces |
+| `npm run typecheck` | Type-check contract, server, and web workspaces |
 | `npm run lint` | Alias for `npm run typecheck` (ESLint deferred post-v1) |
-| `npm run agent:check` | Run agent drift checks |
-| `npm run agent:check:contract` | Run contract coverage checks |
+| `npm run contract:generate` | Regenerate contract markdown and OpenAPI from `contract/src/` |
+| `npm run agent:check` | Run contract freshness, drift, and coverage checks |
+| `npm run agent:check:contract` | Run contract coverage checks only |
+| `npm run agent:check:db` | Verify live PostgreSQL procedures match the contract |
 
 ## When to use this
 

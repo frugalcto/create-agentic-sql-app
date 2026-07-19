@@ -11,6 +11,7 @@ import { initializeGit } from "../src/initializeGit.js";
 import { installDependencies } from "../src/installDependencies.js";
 import {
   REQUIRED_CURSOR_AGENT_FILES,
+  REQUIRED_CONTRACT_FILES,
   REQUIRED_DOCUMENTATION_FILES,
   REQUIRED_ROOT_SCRIPTS,
 } from "../src/templateContract.js";
@@ -29,6 +30,7 @@ function createBaseOptions(
   return {
     projectName: "my-app",
     api: "express",
+    auth: false,
     dbTests: "integration",
     template: "base",
     packageManager: "npm",
@@ -320,6 +322,28 @@ describe("generateProject template copying", () => {
     });
   });
 
+  it("includes required contract files", async () => {
+    const result = await generateProject(
+      createBaseOptions({
+        projectName: "contract-app",
+        cwd: testRoot,
+        install: false,
+      }),
+    );
+
+    for (const fileName of REQUIRED_CONTRACT_FILES) {
+      await expect(
+        access(join(result.projectDirectory, fileName)),
+      ).resolves.toBeUndefined();
+    }
+
+    const packageJson = JSON.parse(
+      await readFile(join(result.projectDirectory, "package.json"), "utf8"),
+    ) as { workspaces: string[] };
+
+    expect(packageJson.workspaces).toContain("contract");
+  });
+
   it("includes required documentation files", async () => {
     const result = await generateProject(
       createBaseOptions({
@@ -549,10 +573,10 @@ describe("generateProject template copying", () => {
     expect(packageJson.dependencies.fastify).toBeTruthy();
     expect(
       await readFile(
-        join(result.projectDirectory, "server/src/routes/release-risk.routes.ts"),
+        join(result.projectDirectory, "server/src/routes/api.routes.ts"),
         "utf8",
       ),
-    ).toContain("app_get_release_risk_dashboard");
+    ).toContain("endpoints.getReleaseRiskDashboard");
   });
 
   it("defaults to base template", async () => {
@@ -653,5 +677,90 @@ describe("generateProject template copying", () => {
     await expect(
       access(join(result.projectDirectory, "db/scripts/test-db.pgtap.ts")),
     ).rejects.toThrow();
+  });
+
+  it("generates demo middleware for unflagged projects", async () => {
+    const result = await generateProject(
+      createBaseOptions({
+        projectName: "demo-mode-app",
+        cwd: testRoot,
+        install: false,
+      }),
+    );
+
+    await expect(
+      access(join(result.projectDirectory, "server/src/middleware/actorContext.ts")),
+    ).resolves.toBeUndefined();
+    await expect(
+      access(join(result.projectDirectory, "server/src/middleware/sessionContext.ts")),
+    ).rejects.toThrow();
+    await expect(
+      access(join(result.projectDirectory, "db/migrations/005_auth.sql")),
+    ).rejects.toThrow();
+  });
+
+  it("generates auth session infrastructure when auth=true", async () => {
+    const result = await generateProject(
+      createBaseOptions({
+        projectName: "auth-mode-app",
+        auth: true,
+        cwd: testRoot,
+        install: false,
+      }),
+    );
+
+    const envExample = await readFile(
+      join(result.projectDirectory, ".env.example"),
+      "utf8",
+    );
+    const endpoints = await readFile(
+      join(result.projectDirectory, "contract/src/endpoints.ts"),
+      "utf8",
+    );
+
+    expect(envExample).toContain("DATABASE_RUNTIME_URL");
+    expect(endpoints).toContain("app_login");
+    expect(endpoints).not.toContain('source: "actor"');
+    await expect(
+      access(join(result.projectDirectory, "server/src/middleware/actorContext.ts")),
+    ).rejects.toThrow();
+    await expect(
+      access(join(result.projectDirectory, "server/src/middleware/sessionContext.ts")),
+    ).resolves.toBeUndefined();
+    await expect(
+      access(join(result.projectDirectory, "db/migrations/005_auth.sql")),
+    ).resolves.toBeUndefined();
+    await expect(
+      access(join(result.projectDirectory, "web/src/routes/login.tsx")),
+    ).resolves.toBeUndefined();
+  });
+
+  it("generates auth infrastructure for all template combinations", async () => {
+    const combinations = [
+      { api: "express" as const, template: "base" as const },
+      { api: "fastify" as const, template: "base" as const },
+      { api: "express" as const, template: "release-risk" as const },
+      { api: "fastify" as const, template: "release-risk" as const },
+    ];
+
+    for (const [index, combination] of combinations.entries()) {
+      const result = await generateProject(
+        createBaseOptions({
+          projectName: `auth-matrix-${index}`,
+          auth: true,
+          api: combination.api,
+          template: combination.template,
+          cwd: testRoot,
+          install: false,
+        }),
+      );
+
+      await expect(
+        access(join(result.projectDirectory, "db/migrations/005_auth.sql")),
+      ).resolves.toBeUndefined();
+      await expect(
+        access(join(result.projectDirectory, "server/src/middleware/sessionContext.ts")),
+      ).resolves.toBeUndefined();
+    }
   });
 });

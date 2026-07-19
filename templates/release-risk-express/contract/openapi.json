@@ -1,0 +1,339 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "__PROJECT_NAME__ API",
+    "version": "0.1.0",
+    "description": "Generated from contract/src/endpoints.ts. PostgreSQL stored procedures own business behavior."
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "health",
+        "summary": "GET /api/health",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "500": {
+            "description": "Something went wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "SYSTEM_ERROR"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/release-risk-dashboard": {
+      "get": {
+        "operationId": "getReleaseRiskDashboard",
+        "summary": "GET /api/release-risk-dashboard",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "403": {
+            "description": "You do not have permission to perform this action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "PERMISSION_DENIED"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "SERVICE_NOT_FOUND"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "SYSTEM_ERROR"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/releases/:releaseId/transition": {
+      "post": {
+        "operationId": "transitionRelease",
+        "summary": "POST /api/releases/:releaseId/transition",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "The request failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You do not have permission to perform this action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "PERMISSION_DENIED"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Release not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "RELEASE_NOT_FOUND"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "SYSTEM_ERROR"
+                          ]
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "displayMessage": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "category",
+                        "displayMessage"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -20,6 +20,7 @@ export class NonInteractiveError extends Error {
 export interface CliPromptInput {
   projectName?: string;
   api?: string;
+  auth?: boolean;
   dbTests?: string;
   template?: string;
   skipInstall?: boolean;
@@ -29,6 +30,7 @@ export interface CliPromptInput {
 export interface ResolvedPromptValues {
   projectName: string;
   api: ApiFramework;
+  auth: boolean;
   dbTests: DbTestStyle;
   template: TemplateName;
   install: boolean;
@@ -38,6 +40,7 @@ export interface ResolvedPromptValues {
 export interface PromptRunner {
   projectName(): Promise<string>;
   apiFramework(): Promise<ApiFramework>;
+  authMode(): Promise<boolean>;
   dbTestStyle(): Promise<DbTestStyle>;
   template(): Promise<TemplateName>;
   installDependencies(): Promise<boolean>;
@@ -46,6 +49,7 @@ export interface PromptRunner {
 
 export const PROMPT_DEFAULTS = {
   api: "express" as ApiFramework,
+  auth: false,
   dbTests: "integration" as DbTestStyle,
   template: "base" as TemplateName,
   install: true,
@@ -109,6 +113,15 @@ export const clackPromptRunner: PromptRunner = {
     });
 
     return assertNotCancelled(response, "Prompt cancelled.") as ApiFramework;
+  },
+
+  async authMode() {
+    const response = await confirm({
+      message: "Enable PostgreSQL session auth with RLS?",
+      initialValue: PROMPT_DEFAULTS.auth,
+    });
+
+    return assertNotCancelled(response, "Prompt cancelled.");
   },
 
   async dbTestStyle() {
@@ -188,6 +201,13 @@ export async function promptForMissingValues(
         ? await runner.apiFramework()
         : PROMPT_DEFAULTS.api;
 
+  const auth =
+    input.auth !== undefined
+      ? input.auth
+      : interactive
+        ? await runner.authMode()
+        : PROMPT_DEFAULTS.auth;
+
   const dbTests =
     input.dbTests !== undefined
       ? parseDbTests(input.dbTests)
@@ -219,6 +239,7 @@ export async function promptForMissingValues(
   return {
     projectName,
     api,
+    auth,
     dbTests,
     template,
     install,

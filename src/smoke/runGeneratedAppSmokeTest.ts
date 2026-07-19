@@ -91,6 +91,7 @@ export async function runGeneratedAppSmokeTest(
       const result = await generateProject({
         projectName,
         api: options.api ?? "express",
+        auth: options.auth ?? false,
         dbTests: options.dbTests ?? "integration",
         template: options.template ?? "base",
         packageManager: "npm",
@@ -138,6 +139,14 @@ export async function runGeneratedAppSmokeTest(
 
     await runStep("Run seed", steps, async () => {
       await execa("npm", ["run", "db:seed"], {
+        cwd: appDir,
+        stdio: "inherit",
+        env: composeEnvironment(composeProjectName),
+      });
+    });
+
+    await runStep("Run agent checks", steps, async () => {
+      await execa("npm", ["run", "agent:check"], {
         cwd: appDir,
         stdio: "inherit",
         env: composeEnvironment(composeProjectName),

@@ -3,6 +3,7 @@ import type { ApiFramework, DbTestStyle, TemplateName } from "../generateProject
 export interface GeneratedAppSmokeTestOptions {
   projectName?: string;
   api?: ApiFramework;
+  auth?: boolean;
   dbTests?: DbTestStyle;
   template?: TemplateName;
   runE2e?: boolean;

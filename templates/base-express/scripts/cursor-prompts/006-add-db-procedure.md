@@ -24,14 +24,17 @@ Read these files first:
 - `db/migrations/`
 - `db/tests/`
 - `db/seeds/` only if required for test data
-- `DB_API_CONTRACT.md`
-- `ERROR_CODES.md`
+- `contract/src/errors.ts` when adding new error codes
+- `contract/src/endpoints.ts` when exposing the procedure through HTTP
 - `SCENARIOS.md` when user-visible behavior changes
+
+After contract edits, run `npm run contract:generate`.
 
 ## Forbidden files
 
 - `server/**`
 - `web/**`
+- generated `DB_API_CONTRACT.md`, `ERROR_CODES.md`, and `contract/openapi.json`
 
 ## Required tests
 
@@ -41,7 +44,10 @@ Read these files first:
 
 Implement only the requested stored procedure and its database tests.
 
-Update contract docs in the same change if the procedure is part of the public contract.
+Update contract docs in the same change if the procedure is part of the public contract:
+
+1. update `contract/src/endpoints.ts` and/or `contract/src/errors.ts`
+2. run `npm run contract:generate`
 
 ## Completion summary
 

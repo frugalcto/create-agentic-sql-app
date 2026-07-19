@@ -1,3 +1,4 @@
+import { applyAuthMode } from "./applyAuthMode.js";
 import { applyDbTestStyle } from "./applyDbTestStyle.js";
 import { copyTemplate } from "./copyTemplate.js";
 import { initializeGit } from "./initializeGit.js";
@@ -27,6 +28,7 @@ export type PackageManager = (typeof PACKAGE_MANAGERS)[number];
 export interface GenerateProjectOptions {
   projectName: string;
   api: ApiFramework;
+  auth: boolean;
   dbTests: DbTestStyle;
   template: TemplateName;
   packageManager: PackageManager;
@@ -98,6 +100,13 @@ export async function generateProject(
     templateVariables,
   );
   await applyDbTestStyle(projectDirectory, options.dbTests);
+  await applyAuthMode(projectDirectory, {
+    api: options.api,
+    template: options.template,
+    auth: options.auth,
+    projectName: validatedProjectName,
+    dbTests: options.dbTests,
+  });
 
   await installDependencies({
     enabled: options.install,
@@ -110,7 +119,7 @@ export async function generateProject(
     projectDirectory,
   });
 
-  const message = formatCompletionMessage(validatedProjectName);
+  const message = formatCompletionMessage(validatedProjectName, options.auth);
 
   return {
     message,

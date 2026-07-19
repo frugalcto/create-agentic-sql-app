@@ -9,6 +9,7 @@ function createMockRunner(
   return {
     projectName: vi.fn().mockResolvedValue("prompted-app"),
     apiFramework: vi.fn().mockResolvedValue("express"),
+    authMode: vi.fn().mockResolvedValue(false),
     dbTestStyle: vi.fn().mockResolvedValue("integration"),
     template: vi.fn().mockResolvedValue("base"),
     installDependencies: vi.fn().mockResolvedValue(true),
@@ -36,6 +37,7 @@ describe("resolveGenerationOptions", () => {
     expect(result).toEqual({
       projectName: "demo-app",
       api: "fastify",
+      auth: false,
       dbTests: "pgtap",
       template: "release-risk",
       packageManager: "npm",
