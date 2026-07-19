@@ -120,6 +120,7 @@ export async function verifyPackageManagerInstall(
       const generation = await generateProject({
         projectName,
         api: "express",
+        auth: false,
         dbTests: "integration",
         template: "base",
         packageManager,
